@@ -1,0 +1,3 @@
+1. Run main.py in your terminal
+2. Follow the prompts
+3. Enjoy...
