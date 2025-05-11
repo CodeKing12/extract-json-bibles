@@ -439,7 +439,7 @@ def overwrite_free_bible(bible_folder):
             bibledata_handle.write(bibledata_contents_new)
 
 
-def main(download_folder=download_folder): 
+def main(download_folder, output_folder): 
     os.makedirs(download_folder, exist_ok=True)
 
     click.echo("Which language would you want to download?")
@@ -474,7 +474,7 @@ def main(download_folder=download_folder):
     return selected_bible_abbeviation
 
 if __name__ == '__main__':
-    main(download_folder)
+    main(download_folder, output_folder)
 
     # # process downloaded bible files to ProPresenter RVBible format
     # print("Converting chapters to valid USX format")

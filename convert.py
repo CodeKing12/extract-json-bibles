@@ -76,7 +76,8 @@ def traverse_directory(base_dir, version, output_type='separate'):
                 bible_data[book_name] = {}
     
             print(file_path)
-            file_data = parse_html_to_json(open(file_path).read())
+            with open(file_path, 'r', encoding='utf-8') as f:
+                file_data = parse_html_to_json(f.read())
             
             for chapter in file_data:
                 chapter_number = chapter["chapter"]

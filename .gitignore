@@ -1,2 +1,6 @@
 download/
 __pycache__/
+
+# possible env files
+env/
+venv/
