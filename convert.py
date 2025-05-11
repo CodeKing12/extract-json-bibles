@@ -30,10 +30,12 @@ def parse_html_to_json(html_data):
         latest_verse = ""
         for verse_span in chapter_div.find_all('span', class_='verse'):
             label_span = verse_span.find('span', class_='label')
-            verse_number = label_span.text.strip() if label_span else None
-            if verse_number and verse_number.isnumeric():
+            verse_number: str = label_span.text.strip() if label_span else None
+            is_continued = False
+
+            # Checks if verse is number like "1" or range (for MSG) like "1-4"
+            if verse_number and (verse_number.isnumeric() or len(verse_number.split("-")) > 1):
                 latest_verse = verse_number
-                is_continued = False
             else:
                 verse_number = latest_verse
                 is_continued = True
@@ -42,8 +44,6 @@ def parse_html_to_json(html_data):
             verse_content = ''.join(
                 content.text for content in verse_span.find_all('span', class_='content')
             ).strip()
-            # if latest_verse == "23":
-            #     print(verse_number, verse_content)
 
             # # Clean up any reference notes that might exist
             # verse_content_cleaned = ' '.join(
