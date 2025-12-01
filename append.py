@@ -47,7 +47,6 @@ def insert_bible_data(json_path, db_path, version, description=None):
             
             # Process verses
             for verse_str, text in verses.items():
-                print(verse_str, text, chapter_str)
                 verse = int(verse_str)
                 clean_text = unicodedata.normalize('NFC', text.strip())
 
