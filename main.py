@@ -13,11 +13,27 @@ def delete_all_folders(folder):
             shutil.rmtree(item_path)
 
 def main(download_folder=download_folder):
-    translation = download_bible(download_folder, output_folder)
-    traverse_directory(download_folder, translation, output_type='single')
+    translations = download_bible(download_folder, output_folder)
+    
+    if not translations:
+        return "No translations were downloaded."
+    
+    # Handle both single translation (string) and multiple translations (list)
+    if isinstance(translations, str):
+        translations = [translations]
+    
+    successful_downloads = []
+    for translation in translations:
+        print(f"\nConverting {translation} to JSON...")
+        traverse_directory(download_folder, translation, output_type='single')
+        successful_downloads.append(f"{download_folder}/{translation}.json")
+    
     delete_all_folders(download_folder)
 
-    return f"Successfully Downloaded & Saved to {download_folder}/{translation}.json"
+    if len(successful_downloads) == 1:
+        return f"Successfully Downloaded & Saved to {successful_downloads[0]}"
+    else:
+        return f"Successfully Downloaded & Saved {len(successful_downloads)} translations:\n" + "\n".join(successful_downloads)
 
 
 if __name__ == "__main__":

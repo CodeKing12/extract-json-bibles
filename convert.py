@@ -6,8 +6,21 @@ from bs4 import BeautifulSoup
 
 metadata = json.load(open("metadata.json"))
 book_map = {}
+
+def normalize_book_name(name):
+    """Convert Roman numeral prefixes to Arabic numbers (e.g., 'I Chronicles' -> '1 chronicles')"""
+    name = name.lower()
+    # Handle Roman numeral prefixes at the start of book names
+    if name.startswith("iii "):
+        return "3 " + name[4:]
+    elif name.startswith("ii "):
+        return "2 " + name[3:]
+    elif name.startswith("i "):
+        return "1 " + name[2:]
+    return name
+
 for book in metadata["books"]:
-    book_map[book["usfm"]] = book["human"].lower()
+    book_map[book["usfm"]] = normalize_book_name(book["human"])
 
 
 def parse_html_to_json(html_data):

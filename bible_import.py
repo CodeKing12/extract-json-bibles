@@ -449,29 +449,61 @@ def main(download_folder, output_folder):
 
     print(options_response_str)
 
-    selected_bible_id = click.prompt("Please select the number above to download the scripture", type=int)
-    selected_bible = available_bibles[selected_bible_id]
-    selected_bible_abbeviation = selected_bible['local_abbreviation']
-
-    print("Retrieve bible metadata")
-    bible_metadata = retrieve_bible_metadata(selected_bible_id)
-    print(bible_metadata)
-
-    # perform bible download
-    location = os.path.join(download_folder, selected_bible_abbeviation)
-    download_required = not os.path.exists(location) or click.confirm(f"It appears that there is already a download folder for bible {selected_bible_abbeviation}. Are you sure you want to download the bible contents?")
+    # Allow selecting multiple Bible versions
+    selected_input = click.prompt(
+        "Enter the number(s) of the scripture(s) to download (comma-separated for multiple, e.g., 114,111,59)", 
+        type=str
+    )
     
-    if download_required:
-        os.makedirs(location, exist_ok=True)
+    # Parse the input to get list of IDs
+    selected_ids = [int(id.strip()) for id in selected_input.split(',') if id.strip().isdigit()]
+    
+    if not selected_ids:
+        print("No valid Bible IDs provided.")
+        return []
+    
+    # Filter to only valid IDs
+    valid_ids = [id for id in selected_ids if id in available_bibles]
+    invalid_ids = [id for id in selected_ids if id not in available_bibles]
+    
+    if invalid_ids:
+        print(f"Warning: The following IDs are not available and will be skipped: {invalid_ids}")
+    
+    if not valid_ids:
+        print("No valid Bible IDs found.")
+        return []
+    
+    downloaded_abbreviations = []
+    
+    for selected_bible_id in valid_ids:
+        selected_bible = available_bibles[selected_bible_id]
+        selected_bible_abbeviation = selected_bible['local_abbreviation']
 
-        print(f"Starting download {selected_bible['local_title']}")
-        download_bible_chapters(location, selected_bible_id, selected_bible_abbeviation, bible_metadata)
+        print(f"\n{'='*50}")
+        print(f"Processing: {selected_bible['local_title']} ({selected_bible_abbeviation})")
+        print(f"{'='*50}")
 
-    output_folder = os.path.join(output_folder, selected_bible_abbeviation)
-    usx_folder = os.path.join(output_folder, "USX_1")
-    os.makedirs(usx_folder, exist_ok=True)
+        print("Retrieve bible metadata")
+        bible_metadata = retrieve_bible_metadata(selected_bible_id)
 
-    return selected_bible_abbeviation
+        # perform bible download
+        location = os.path.join(download_folder, selected_bible_abbeviation)
+        download_required = not os.path.exists(location) or click.confirm(f"It appears that there is already a download folder for bible {selected_bible_abbeviation}. Are you sure you want to download the bible contents?")
+        
+        if download_required:
+            os.makedirs(location, exist_ok=True)
+
+            print(f"Starting download {selected_bible['local_title']}")
+            download_bible_chapters(location, selected_bible_id, selected_bible_abbeviation, bible_metadata)
+
+        output_folder_bible = os.path.join(output_folder, selected_bible_abbeviation)
+        usx_folder = os.path.join(output_folder_bible, "USX_1")
+        os.makedirs(usx_folder, exist_ok=True)
+        
+        downloaded_abbreviations.append(selected_bible_abbeviation)
+        print(f"Completed: {selected_bible_abbeviation}")
+
+    return downloaded_abbreviations
 
 if __name__ == '__main__':
     main(download_folder, output_folder)
